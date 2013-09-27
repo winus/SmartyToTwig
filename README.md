@@ -21,3 +21,8 @@ $bundles = array(
             ...
         );
 ```
+
+Afterwards you get a console command 
+```
+app/console firstclass:smarty-to-twig
+```
