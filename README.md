@@ -26,12 +26,12 @@ Afterwards you get a console command
 ```
 app/console firstclass:smarty-to-twig
 ```
-
+```
 Usage:
  firstclass:smarty-to-twig [--save[="..."]] [path]
 
 Arguments:
- path    The path to scan. By default we try the src/ dir.
+ path    The path to scan. By default we try the src/ dir.```
 
 Options:
  --save  Whether we should save the file or not? Default: NO (default: false)
