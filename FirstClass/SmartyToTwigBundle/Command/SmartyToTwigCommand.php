@@ -27,7 +27,7 @@ class SmartyToTwigCommand extends ContainerAwareCommand {
             $path = realpath(__DIR__ . '/../../../');
         }
 
-        $save = $input->getOption('dryrun');
+        $save = $input->getOption('save');
         
         $output->writeln('Doing a dry-run. Not saving any files.');
         sleep(5);
