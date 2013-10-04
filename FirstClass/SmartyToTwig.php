@@ -131,6 +131,10 @@ class SmartyToTwig {
         $content = preg_replace('/!empty\(([^\s)]+)\)(\s|\})/', '$1 is not empty $2 ', $content);
         $content = preg_replace('/empty\(([^\s]+)\)(\s|\})/', '$1 is empty $2 ', $content);
 
+        /* empty */
+        $content = preg_replace('/!is_null\(([^\s)]+)\)(\s|\})/', '$1 is not null $2 ', $content);
+        $content = preg_replace('/is_null\(([^\s]+)\)(\s|\})/', '$1 is null $2 ', $content);
+
 
         /* Replace extends 
          * {extends file="file:[AutogespotBundle]/autogespot-2.0/head.html.tpl"}
