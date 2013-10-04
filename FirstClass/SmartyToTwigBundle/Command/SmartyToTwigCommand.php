@@ -14,24 +14,23 @@ class SmartyToTwigCommand extends ContainerAwareCommand {
     protected function configure() {
         $this
                 ->setName('firstclass:smarty-to-twig')
-                ->addArgument('path', InputArgument::OPTIONAL, 'The path to scan. By default we try the src/ dir.', null)
+                ->addOption('path', null, InputOption::VALUE_OPTIONAL, 'The path to scan. By default we try the src/ dir.', null)
                 ->addOption('save', null, InputOption::VALUE_OPTIONAL, 'Whether we should save the file or not? Default: NO', false)
+                ->addOption('debug', 'd', InputOption::VALUE_OPTIONAL, 'debug mode enabled throws an exception on the first error found.', true)
                 ->setDescription('Convert smarty templates to twig.');
-
-        ;
     }
 
     protected function execute(InputInterface $input, OutputInterface $output) {
 
-        if (!( $path = $input->getArgument('path'))) {
+        if (!( $path = $input->getOption('path'))) {
             $path = realpath(__DIR__ . '/../../../');
         }
 
         $save = $input->getOption('save');
-        
+
         $output->writeln('Doing a dry-run. Not saving any files.');
-        sleep(5);
-       
+        sleep(1);
+
         $converter = new \FirstClass\SmartyToTwig($path);
         $converter->setTwigEnvironment($this->getContainer()->get('twig'));
 
@@ -45,11 +44,11 @@ class SmartyToTwigCommand extends ContainerAwareCommand {
                 $plugin->load($converter);
             } else {
                 throw new \Symfony\Component\DependencyInjection\Exception\RuntimeException(
-                    'Please check that your class implements  FirstClass\SmartyToTwigExtensionInterface'
+                'Please check that your class implements  FirstClass\SmartyToTwigExtensionInterface'
                 );
             }
         }
-
+        $converter->setDebug($input->getOption('debug'));
         $converter->process($save, $output);
     }
 

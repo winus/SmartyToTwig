@@ -15,12 +15,21 @@ class SmartyToTwig {
     private $debug = true;
     private $twig;
 
+    
     public function __construct($paths, $extensions = array('tpl', 'smarty'), $recursive = true) {
         $this->paths = (array) $paths;
         $this->setExtensions($extensions);
         $this->recursive = $recursive;
     }
 
+    /**
+     * Enabled the debug mode.
+     * @param type $debug
+     */
+    public function setDebug($debug){
+        $this->debug = $debug;
+    }
+    
     /**
      * 
      * @param \Twig_Environment $twig
@@ -45,6 +54,9 @@ class SmartyToTwig {
         $this->processDir($this->paths);
         foreach ($this->files as $file) {
             /* @var $file \SplFileInfo */
+            if($output->getVerbosity() >= \Symfony\Component\Console\Output\OutputInterface::VERBOSITY_NORMAL ){
+                $output->writeln('<info>Processing:'.$file->getRealPath().'</info>');
+            }
             $content = $this->convert(file_get_contents($file->getRealPath()));
 
 
@@ -60,6 +72,9 @@ class SmartyToTwig {
                     foreach (explode(PHP_EOL, $content) as $k => $l) {
                         $output->writeln(str_pad($k + 1, 4, ' ', STR_PAD_LEFT) . '| ' . $l);
                     }
+                }
+                if($this->debug){
+                    exit();
                 }
             }
 
@@ -225,7 +240,7 @@ class SmartyToTwig {
 
 
         /* truncate requires text extension */
-        $content = preg_replace('/\|truncate:(\')?([0-9]+)(\')?:\'([^\}]+)\'/', '|truncate($2, \'$4\')', $content);
+        $content = preg_replace('/\|truncate:(\'||")?([0-9]+)(\'|")?:(\'|")([^\}]+)(\'|")/', '|truncate($2, \'$5\')', $content);
 
 
         /* Replace */
@@ -238,6 +253,7 @@ class SmartyToTwig {
 
 
         /* Replace foreach */
+        $content = preg_replace('/\{foreachelse\}/', '{% else %}', $content);
         $content = preg_replace_callback('/\{for(each)?([^\}]+)\}/', function($match) {
                     $var = '';
                     $in = '';
@@ -250,7 +266,7 @@ class SmartyToTwig {
                     } elseif (preg_match('/(\S+) as (\S+)/', $match[2], $matches) !== 0) {
                         $var = $matches[2];
                         $in = $matches[1];
-                    } elseif (preg_match('/from=(\S+) item=(\S+)/', $match[2], $matches) !== 0) {
+                    } elseif (preg_match('/from=(\S+) item="?([^"]+)"?/', $match[2], $matches) !== 0) {
                         $var = $matches[2];
                         $in = $matches[1];
                     } elseif (preg_match('/item=(\S+) from=(\S+)/', $match[2], $matches) !== 0) {
@@ -600,6 +616,7 @@ class SmartyToTwig {
         $content = preg_replace('/{foreach ([^ ]+) item=([^}%]+)/', '{% for $2 in $1 %}', $content);
 
         $content = preg_replace('/{\/foreach}/', '{% endfor %}', $content);
+        
 
         $content = preg_replace('/{% for ([^=]+)=>([^\s]+) in ([^\s]+) %}/', '{% for $1,$2 in $3 %}', $content);
 
