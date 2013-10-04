@@ -306,6 +306,8 @@ class SmartyToTwig {
                         return 'app.request.server.get(\'' . $matches[1] . '\')';
                     } elseif (preg_match('/now/', $match[1], $matches) !== 0) {
                         return "'now'";
+                    } elseif (preg_match('/section\.(\S+)\.index/', $match[1], $matches) !== 0) {
+                        return "loop.index0";
                     }
                 }, $content);
 
