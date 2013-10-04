@@ -247,7 +247,7 @@ class SmartyToTwig {
 
 
         /* Replace */
-        $content = preg_replace('/\|replace:\'([^\']+)\':\'([^\']+)?\'/', '|replace({ \'$1\' : \'$2\' })', $content);
+        $content = preg_replace('/\|replace:\'([^\']+)\':\'([^\']+)?\'/', '|replace( \'$1\', \'$2\' )', $content);
 
 
         /* catenate */
@@ -342,6 +342,12 @@ class SmartyToTwig {
                         }
                     }
 
+                    /* Normalize route */
+                    if(strpos($route, '{{') !== false){
+                        $route = str_replace(array('{{', '}}'), array('\' ~ (', ') ~ \''), $route);
+//                        $route = $route;
+                    }
+                    
                     if ($a) {
                         return '{{ url(' . $route . ', { ' . implode(', ', $a) . ' } ) }}';
                     } else {
@@ -690,7 +696,7 @@ class SmartyToTwig {
         $content = preg_replace('/\|number_format:([^:]+):([^:]+):([^\})]+)/', '|number_format($1, $2, $3)', $content);
 
         /* Replace */
-        $content = preg_replace('/\|replace:\'([^\']+)\':\'([^\']+)?\'/', '|replace({ \'$1\' : \'$2\' })', $content);
+        $content = preg_replace('/\|replace:\'([^\']+)\':\'([^\']+)?\'/', '|replace( \'$1\' , \'$2\' )', $content);
 
         $content = preg_replace_callback('/\|sanitizeYoutubeUrl(:)?(true)?/', function($match) {
                     return '|sanitizeYoutubeUrl' . ( @$match[2] ? '(true)' : '');
