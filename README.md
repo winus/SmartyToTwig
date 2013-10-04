@@ -30,13 +30,14 @@ app/console firstclass:smarty-to-twig
 ```
 ```
 Usage:
- firstclass:smarty-to-twig [--save[="..."]] [path]
-
-Arguments:
- path    The path to scan. By default we try the src/ dir.
+ firstclass:smarty-to-twig [--path[="..."]] [--save[="..."]] [-d|--debug[="..."]]
 
 Options:
- --save  Whether we should save the file or not? Default: NO (default: false)
+ --path       The path to scan. By default we try the src/ dir.
+ --save       Whether we should save the file or not? Default: NO (default: false)
+ --debug (-d) debug mode enabled throws an exception on the first error found. (default: true)
+
+
 ```
 
 It is also possible to plugin your own converters. For your own function's or modifiers you have created.
@@ -58,10 +59,10 @@ In your projects DepencyInjection/YourprojectExtension.php just add the followin
 ```
 
 And define your own converter class.
-Make sure it implements the ```\FirstClass\SmartyToTwigExtensionInterface``` Interface otherwise it will throw an exception.
+Make sure it implements the `\FirstClass\SmartyToTwigExtensionInterface` Interface otherwise it will throw an exception.
 
 The converter is given as an parameter to the load function, and you plug your own implementation in there.
-After that you are free to mess around with the ```$content``` variable.
+After that you are free to mess around with the `$content` variable.
 
 ```php
 namespace YourProject;
@@ -77,7 +78,7 @@ class SmartyToTwig implements \FirstClass\SmartyToTwigExtensionInterface{
 }
 ```
 
-The ```$converter->plugin()``` also takes an optional second parameter. A priority. The default priority is 100.
+The `$converter->plugin()` also takes an optional second parameter. A priority. The default priority is 100.
 With means it runs after all the default smarty tags are converted. 
 
 Priority 1 means it will run before the default conversions. Those are the only 2 for now.
