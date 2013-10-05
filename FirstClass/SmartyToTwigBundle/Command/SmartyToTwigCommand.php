@@ -14,9 +14,9 @@ class SmartyToTwigCommand extends ContainerAwareCommand {
     protected function configure() {
         $this
                 ->setName('firstclass:smarty-to-twig')
-                ->addOption('path', null, InputOption::VALUE_OPTIONAL, 'The path to scan. By default we try the src/ dir.', null)
-                ->addOption('save', null, InputOption::VALUE_OPTIONAL, 'Whether we should save the file or not? Default: NO', false)
-                ->addOption('debug', 'd', InputOption::VALUE_OPTIONAL, 'debug mode enabled throws an exception on the first error found.', true)
+                ->addOption('path', null, InputOption::VALUE_REQUIRED, 'The path to scan. By default we try the src/ dir.', null)
+                ->addOption('save', null, InputOption::VALUE_NONE, 'Enabled the saving of the converted files')
+                ->addOption('debug', 'd', InputOption::VALUE_NONE, 'debug mode enabled throws an exception on the first error found.')
                 ->setDescription('Convert smarty templates to twig.');
     }
 
@@ -28,8 +28,10 @@ class SmartyToTwigCommand extends ContainerAwareCommand {
 
         $save = $input->getOption('save');
 
-        $output->writeln('Doing a dry-run. Not saving any files.');
-        sleep(1);
+        if (!$save) {
+            $output->writeln('Doing a dry-run. Not saving any files.');
+            sleep(1);
+        }
 
         $converter = new \FirstClass\SmartyToTwig($path);
         $converter->setTwigEnvironment($this->getContainer()->get('twig'));

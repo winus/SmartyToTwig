@@ -65,6 +65,13 @@ class SmartyToTwig {
                 if ($this->debug && $output) {
                     $output->writeln('<info>Parsed: ' . $file->getFilename() . ' : OK</info>');
                 }
+                
+                if ($this->debug && $output) {
+                    $output->writeln('<info>Looking for incompatible tags and such..</info>');
+                    if(($errors = $this->findIncompatibilities($content))){
+                        $output->writeln('<error>You have a incompatible tag(s): '.implode(',', $errors).' in '.$file->getFilename().'</error>');
+                    }
+                }
             } catch (\Exception $e) {
                 $output->writeln('<error>' . $file->getFilename() . ': ' . $e->getMessage() . '</error>');
                 if ($this->debug && $output) {
@@ -316,6 +323,7 @@ class SmartyToTwig {
 
         /* Replace comment */
         $content = preg_replace('/\{\*\}((?:(?!{\*}).)*){\*\}/ms', '{# $1 #}', $content);
+        $content = preg_replace('/\{\*((?:(?!\*\}).)*)\*\}/ms', '{# $1 #}', $content);
 
         /* url */
         $content = preg_replace_callback('/\{url([^\}]+)?\}((?:(?!\{\/url\}).)*)\{\/url\}/', function($match) {
@@ -365,6 +373,10 @@ class SmartyToTwig {
         /* assign */
         $content = preg_replace('/{assign var="([^"]+)" value=([^}]+)}/', '{% set $1 = $2 %}', $content);
 
+        /* {strip} */
+        $content = preg_replace('/\{strip\}/', '{% spaceless %}', $content);
+        $content = preg_replace('/\{\/strip\}/', '{% endspaceless %}', $content);
+        
         /* asset */
         $content = preg_replace('/{asset}([\'{]+){\/asset}/', '{{ asset(\'$1\') }}', $content);
 
@@ -816,4 +828,15 @@ class SmartyToTwig {
         }
     }
 
+    private function findIncompatibilities($content){
+        $list = array('{break}', '{continue}', '|unescape', '{nocache}',
+            '{literal}', '{while}');
+        $errors = array();
+        foreach($list as $find){
+            if(strpos($content, $find) !== false){
+                $errors[] = $find;
+            }
+        }
+        return $errors;
+    }
 }
