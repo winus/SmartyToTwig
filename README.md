@@ -30,13 +30,12 @@ app/console firstclass:smarty-to-twig
 ```
 ```
 Usage:
- firstclass:smarty-to-twig [--path[="..."]] [--save[="..."]] [-d|--debug[="..."]]
+ firstclass:smarty-to-twig [--path="..."] [--save] [-d|--debug]
 
 Options:
  --path       The path to scan. By default we try the src/ dir.
- --save       Whether we should save the file or not? Default: NO (default: false)
- --debug (-d) debug mode enabled throws an exception on the first error found. (default: true)
-
+ --save       Enabled the saving of the converted files
+ --debug (-d) debug mode enabled throws an exception on the first error found.
 
 ```
 
