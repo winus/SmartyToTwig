@@ -254,7 +254,7 @@ class SmartyToTwig {
 
 
         /* Replace */
-        $content = preg_replace('/\|replace:\'([^\']+)\':\'([^\']+)?\'/', '|replace( \'$1\', \'$2\' )', $content);
+        $content = preg_replace('/\|replace:\'([^\']+)\':\'([^\']+)?\'/', '|replace({ \'$1\': \'$2\' })', $content);
 
 
         /* catenate */
