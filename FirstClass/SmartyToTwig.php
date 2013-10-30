@@ -65,11 +65,11 @@ class SmartyToTwig {
                 if ($this->debug && $output) {
                     $output->writeln('<info>Parsed: ' . $file->getFilename() . ' : OK</info>');
                 }
-                
+
                 if ($this->debug && $output) {
                     $output->writeln('<info>Looking for incompatible tags and such..</info>');
-                    if(($errors = $this->findIncompatibilities($content))){
-                        $output->writeln('<error>You have a incompatible tag(s): '.implode(',', $errors).' in '.$file->getFilename().'</error>');
+                    if (($errors = $this->findIncompatibilities($content))) {
+                        $output->writeln('<error>You have a incompatible tag(s): ' . implode(',', $errors) . ' in ' . $file->getFilename() . '</error>');
                     }
                 }
             } catch (\Exception $e) {
@@ -202,10 +202,18 @@ class SmartyToTwig {
         $content = preg_replace('/{include file="file:\[([^\]]+)\]\/([^\/]+)\/([^"]+).(twig|tpl|smarty)"}/', '{% include "$1:$2:$3.twig" %}', $content);
         $content = preg_replace('/{include file="file:([^\]]+):([^\/]+):([^"]+).(twig|tpl|smarty)"}/', '{% include "$1:$2:$3.twig" %}', $content);
         /* include with parameters */
-        $content = preg_replace_callback('/\{include file="file:([^"]+)"([^\}]+)\}/', function($match) {
+        $content = preg_replace_callback('/\{include file="file:([^"]+)"([^\}]+)(.*)\}/', function($match) {
                     preg_match_all('/\[?([^\/|\]]+)\]?/', $match[1], $matches);
 
-                    return '{% include "' . $matches[1][0] . ':' . $matches[1][1] . ':' . @$matches[1][2] . (@$matches[1][3] ? '/' . $matches[1][3] : '') . '" %}';
+                    $with = array();
+                    /* find any assigning attributes */
+                    if (isset($match[2])) {
+                        preg_match_all('/(\S+)=(\S+)/', $match[2], $parameters);
+                        foreach($parameters[0] as $i=>$p){
+                            $with[] = $parameters[1][$i].':'.$parameters[2][$i];
+                        }
+                    }
+                    return '{% include "' . $matches[1][0] . ':' . $matches[1][1] . ':' . @$matches[1][2] . (@$matches[1][3] ? '/' . $matches[1][3] : '') . '" '.($with ? ' with { '.implode(', ', $with).' } ' : '').' %}';
                 }, $content);
 
         /* Replace all || and %% between {%%} */
@@ -317,8 +325,6 @@ class SmartyToTwig {
                     } elseif (preg_match('/section.(\S+).last/', $match[1], $matches) !== 0) {
                         return "loop.last";
                     }
-
-                    
                 }, $content);
 
         /* Replace comment */
@@ -351,11 +357,11 @@ class SmartyToTwig {
                     }
 
                     /* Normalize route */
-                    if(strpos($route, '{{') !== false){
+                    if (strpos($route, '{{') !== false) {
                         $route = str_replace(array('{{', '}}'), array('\' ~ (', ') ~ \''), $route);
 //                        $route = $route;
                     }
-                    
+
                     if ($a) {
                         return '{{ url(' . $route . ', { ' . implode(', ', $a) . ' } ) }}';
                     } else {
@@ -376,7 +382,7 @@ class SmartyToTwig {
         /* {strip} */
         $content = preg_replace('/\{strip\}/', '{% spaceless %}', $content);
         $content = preg_replace('/\{\/strip\}/', '{% endspaceless %}', $content);
-        
+
         /* asset */
         $content = preg_replace('/{asset}([\'{]+){\/asset}/', '{{ asset(\'$1\') }}', $content);
 
@@ -828,15 +834,16 @@ class SmartyToTwig {
         }
     }
 
-    private function findIncompatibilities($content){
+    private function findIncompatibilities($content) {
         $list = array('{break}', '{continue}', '|unescape', '{nocache}',
             '{literal}', '{while}');
         $errors = array();
-        foreach($list as $find){
-            if(strpos($content, $find) !== false){
+        foreach ($list as $find) {
+            if (strpos($content, $find) !== false) {
                 $errors[] = $find;
             }
         }
         return $errors;
     }
+
 }
